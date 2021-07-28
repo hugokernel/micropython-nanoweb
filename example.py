@@ -4,6 +4,11 @@ from nanoweb import HttpError, Nanoweb, send_file
 
 CREDENTIALS = ('foo', 'bar')
 
+async def send_response(request, code=200, message="OK"):
+    await request.write("HTTP/1.1 %i %s\r\n" % (code, message))
+    await request.write("Content-Type: application/json\r\n\r\n")
+    await request.write('{"status": true}')
+
 def authenticate(credentials):
     async def fail(request):
         await request.write("HTTP/1.1 401 Unauthorized\r\n")
