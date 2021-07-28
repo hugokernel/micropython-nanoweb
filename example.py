@@ -1,6 +1,7 @@
 import os
 import uasyncio
 from nanoweb import HttpError, Nanoweb, send_file
+from ubinascii import a2b_base64 as base64_decode
 
 CREDENTIALS = ('foo', 'bar')
 
