@@ -27,11 +27,11 @@ async def error(request, code, reason):
     await request.write("<h1>%s</h1>" % (reason))
 
 
-async def send_file(request, filename):
+async def send_file(request, filename, segment=64):
     try:
         with open(filename, "r") as f:
             while True:
-                data = f.read(64)
+                data = f.read(segment)
                 if not data:
                     break
                 await request.write(data)
