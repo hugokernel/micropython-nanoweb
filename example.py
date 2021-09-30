@@ -1,5 +1,5 @@
 import os
-import uasyncio
+import uasyncio as asyncio
 from nanoweb import HttpError, Nanoweb, send_file
 from ubinascii import a2b_base64 as base64_decode
 
@@ -138,6 +138,6 @@ def ping(request):
     await request.write("HTTP/1.1 200 OK\r\n\r\n")
     await request.write("pong")
 
-loop = uasyncio.get_event_loop()
+loop = asyncio.get_event_loop()
 loop.create_task(naw.run())
 loop.run_forever()
