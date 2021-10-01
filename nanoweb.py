@@ -173,4 +173,4 @@ class Nanoweb:
             await writer.aclose()
 
     async def run(self):
-        await asyncio.start_server(self.handle, self.address, self.port)
+        return await asyncio.start_server(self.handle, self.address, self.port)
