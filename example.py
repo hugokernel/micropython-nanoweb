@@ -147,6 +147,12 @@ async def upload(request):
 
 
 @authenticate(credentials=CREDENTIALS)
+async def images(request):
+    await request.write("HTTP/1.1 200 OK\r\n\r\n")
+    await send_file(request, request.url.split('/')[-1], binary=True)
+
+
+@authenticate(credentials=CREDENTIALS)
 async def index(request):
     await request.write(b"HTTP/1.1 200 Ok\r\n\r\n")
     await request.write(b'''
@@ -171,7 +177,9 @@ select {
     </head>
 
     <body>
-        <h1>Nanoweb</h1>
+        <h1>Nanoweb
+        <img src="images/python-logo.png">
+        </h1>
 
         <h2>1. File list</h2>
 
@@ -283,6 +291,7 @@ naw = Nanoweb(8001)
 # Declare route from a dict
 naw.routes = {
     '/': index,
+    '/images/*': images,
     '/api/upload/*': upload,
     '/api/status': api_status,
     '/api/ls': api_ls,
