@@ -52,7 +52,8 @@ class Nanoweb:
     callback_request = None
     callback_error = staticmethod(error)
 
-    INDEX_FILE = '/index.html'
+    STATIC_DIR = './'
+    INDEX_FILE = STATIC_DIR + 'index.html'
 
     def __init__(self, port=80, address='0.0.0.0'):
         self.port = port
@@ -158,7 +159,14 @@ class Nanoweb:
                             # 4. Current url have an assets extension ?
                             for extension in self.assets_extensions:
                                 if request.url.endswith('.' + extension):
-                                    await send_file(request, request.url)
+                                    await send_file(
+                                        request,
+                                        '%s/%s' % (
+                                            self.STATIC_DIR,
+                                            request.url,
+                                        ),
+                                        binary=True,
+                                    )
                                     break
                             else:
                                 raise HttpError(request, 404, "File Not Found")
