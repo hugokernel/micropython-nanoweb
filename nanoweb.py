@@ -27,9 +27,9 @@ async def error(request, code, reason):
     await request.write("<h1>%s</h1>" % (reason))
 
 
-async def send_file(request, filename, segment=64):
+async def send_file(request, filename, segment=64, binary=False):
     try:
-        with open(filename, "r") as f:
+        with open(filename, 'rb' if binary else 'r') as f:
             while True:
                 data = f.read(segment)
                 if not data:
