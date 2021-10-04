@@ -7,6 +7,8 @@ from nanoweb import HttpError, Nanoweb, send_file
 from ubinascii import a2b_base64 as base64_decode
 
 CREDENTIALS = ('foo', 'bar')
+EXAMPLE_ASSETS_DIR = './example-assets/'
+
 
 def get_time():
     uptime_s = int(time.ticks_ms() / 1000)
@@ -147,151 +149,42 @@ async def upload(request):
 
 
 @authenticate(credentials=CREDENTIALS)
-async def images(request):
-    await request.write("HTTP/1.1 200 OK\r\n\r\n")
-    await send_file(request, request.url.split('/')[-1], binary=True)
+async def assets(request):
+    await request.write("HTTP/1.1 200 OK\r\n")
+
+    args = {}
+
+    filename = request.url.split('/')[-1]
+    if filename.endswith('.png'):
+        args = {'binary': True}
+
+    await request.write("\r\n")
+
+    await send_file(
+        request,
+        './%s/%s' % (EXAMPLE_ASSETS_DIR, filename),
+        **args,
+    )
 
 
 @authenticate(credentials=CREDENTIALS)
 async def index(request):
     await request.write(b"HTTP/1.1 200 Ok\r\n\r\n")
-    await request.write(b'''
-<html>
-    <head>
-        <meta charset="utf-8">
-        <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
-        <style>
-body {
-    margin: 5%;
-}
 
-.state {
-    text-transform: capitalize;
-}
-
-select {
-    width: 50%;
-}
-        </style>
-    </head>
-
-    <body>
-        <h1>Nanoweb
-        <img src="images/python-logo.png">
-        </h1>
-
-        <h2>1. File list</h2>
-
-        <p class="alert alert-info" role="alert">
-            List is updated when you upload a file.
-        </p>
-
-        <form id="list">
-            <select multiple></select>
-
-            <br>
-
-            <input class="btn btn-primary mt-2" type="submit" name="download" value="Download">
-        </form>
-
-        <h2>2. Upload</h2>
-
-        <p class="alert alert-info" role="alert">
-            Select one or more files and upload them.
-        </p>
-
-        <form id="upload" action="/api/upload/" method="POST">
-            <label for="files">Files to upload:</label>
-            <input id="files" name="files" type="file" multiple>
-            <br>
-            <input type="submit" value="Upload">
-        </form>
-
-        <div id="status" class="alert alert-primary" role="alert">
-            N/A
-        </div>
-
-        <h2>3. Information</h2>
-
-        <p class="alert alert-info" role="alert">
-            Information is polled each second to the status API.
-        </p>
-
-        <ul>
-            <li>Time: <span id="time">{time}</span></li>
-            <li>Uptime: <span id="uptime">{uptime}</span></li>
-            <li>Python: <span id="python">{python}</span></li>
-            <li>Platform: <span id="platform">{platform}</span></li>
-        </ul>
-
-        <script>
-function update_files() {
-    $('#list select option').remove();
-    $.getJSON("/api/ls", function(data) {
-        $.each(data['files'], function(index, file) {
-                $('<option />', {html: file}).appendTo($('#list select'));
-        });
-    });
-}
-
-function update_status() {
-    $.getJSON("/api/status", function(data) {
-        $.each(['time', 'uptime', 'python', 'platform'], function(index, key) {
-            $('#' + key).html(data[key]);
-        });
-    });
-}
-
-$(document).ready(function() {
-    $(document).on('submit', '#upload', function(e) {
-        var form = $(this);
-        var success = 0;
-        $.each($('#files').prop('files'), function(index, file) {
-            $('#status').html("Sending " + file.name);
-
-            $.ajax({
-                async: false,
-                url: form.attr('action') + file.name,
-                method: 'PUT',
-                data: file,
-                processData: false,  // tell jQuery not to process the data
-                contentType: false,  // tell jQuery not to set contentType
-            }).done(function() {
-                success++;
-
-                update_files();
-            });
-        });
-
-        $('#status').html(success + " file(s) uploaded successfully.");
-
-        e.preventDefault();
-    }).on('submit', '#list', function(e) {
-        var file = $(this).find('select').val()[0];
-        if (file) {
-            window.location = '/api/download/' + file;
-        }
-
-        e.preventDefault();
-    });
-
-    setInterval(update_status, 1000);
-
-    update_files();
-    update_status();
-});
-        </script>
-    </body>
-</html>''')
+    await send_file(
+        request,
+        './%s/index.html' % EXAMPLE_ASSETS_DIR,
+    )
 
 
 naw = Nanoweb(8001)
+naw.assets_extensions += ('ico',)
+naw.STATIC_DIR = EXAMPLE_ASSETS_DIR
 
 # Declare route from a dict
 naw.routes = {
     '/': index,
-    '/images/*': images,
+    '/assets/*': assets,
     '/api/upload/*': upload,
     '/api/status': api_status,
     '/api/ls': api_ls,

@@ -1,0 +1,60 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+        <link rel="stylesheet" href="default.css">
+    </head>
+
+    <body>
+        <h1>Nanoweb
+        <img src="/assets/python-logo.png">
+        </h1>
+
+        <h2>1. File list</h2>
+
+        <p class="alert alert-info" role="alert">
+            List is updated when you upload a file.
+        </p>
+
+        <form id="list">
+            <select multiple></select>
+
+            <br>
+
+            <input class="btn btn-primary mt-2" type="submit" name="download" value="Download">
+        </form>
+
+        <h2>2. Upload</h2>
+
+        <p class="alert alert-info" role="alert">
+            Select one or more files and upload them.
+        </p>
+
+        <form id="upload" action="/api/upload/" method="POST">
+            <label for="files">Files to upload:</label>
+            <input id="files" name="files" type="file" multiple>
+            <br>
+            <input type="submit" value="Upload">
+        </form>
+
+        <div id="status" class="alert alert-primary" role="alert">
+            N/A
+        </div>
+
+        <h2>3. Information</h2>
+
+        <p class="alert alert-info" role="alert">
+            Information is polled each second to the status API.
+        </p>
+
+        <ul>
+            <li>Time: <span id="time">{time}</span></li>
+            <li>Uptime: <span id="uptime">{uptime}</span></li>
+            <li>Python: <span id="python">{python}</span></li>
+            <li>Platform: <span id="platform">{platform}</span></li>
+        </ul>
+
+        <script src="default.js"></script>
+    </body>
+</html>

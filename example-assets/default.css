@@ -1,0 +1,11 @@
+body {
+    margin: 5%;
+}
+
+.state {
+    text-transform: capitalize;
+}
+
+select {
+    width: 50%;
+}
