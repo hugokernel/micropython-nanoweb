@@ -1,26 +1,46 @@
 import uasyncio as asyncio
+import ujson as json
 import uerrno
 
 
 class HttpError(Exception):
     pass
 
-
 class Request:
     url = ""
     method = ""
     headers = {}
+    path_params = {}
     route = ""
     read = None
     write = None
     close = None
+    
+    async def writeJSON(self, dataObject,code = 200, message = 'OK'):
+        await self.writeResult(json.dumps(dataObject),code,message,'application/json')
 
+    async def writeResult(self, result,code = 200, message = 'OK', content_type = 'text/plain'):
+        await self.write("HTTP/1.1 %i %s\r\n" % (code, message))
+        await self.write("Content-Type: %s\r\n\r\n" % (content_type))
+        await self.write(result)
+    
+    async def getContent(self, max_read_size = 4094):
+        if (not hasattr(self,'is_read')):
+            setattr(self,'is_read',True)
+            self._content = self.read(max_read_size)
+        return self._content
+
+       
+    async def readJSON(self):
+        if (not hasattr(self,'is_read')):
+            setattr(self,'is_read',True)
+            self._json = json.loads(await self.read(4096))
+        return self._json
 
 async def write(request, data):
     await request.write(
         data.encode('ISO-8859-1') if type(data) == str else data
     )
-
 
 async def error(request, code, reason):
     await request.write("HTTP/1.1 %s %s\r\n\r\n" % (code, reason))
@@ -39,7 +59,35 @@ async def send_file(request, filename, segment=64, binary=False):
         if e.args[0] != uerrno.ENOENT:
             raise
         raise HttpError(request, 404, "File Not Found")
-
+# will return None if not a match, an empty dict if a match without inline
+# params, or a dict with the inline params filled in
+def compare_segments(incoming,route):
+    if (len(incoming) != len(route)):
+        return None
+    params = {}
+    wildcardPos = 0
+    for pos in range(0,len(route)):
+        if route[pos] == incoming[pos]:
+            #matches
+            matches=1
+        elif route[pos] == '*':
+            params['$'+wildcardPos] = incoming[pos]
+            wildcardPos=wildcardPos+1
+        elif route[pos] == '**':
+            if pos != len(route)-1:
+                # invalid path
+                return None
+            for newpos in range(0,len(incoming)-len(route)):
+                params['$'+wildcardPos] = incoming[pos+newpos]
+                wildcardPos=wildcardPos+1
+            return params
+        elif (route[pos].startswith('<') and route[pos].endswith('>')):
+            key=route[pos][1:(len(route[pos])-1)]
+            params[key] = incoming[pos]
+        else:
+            return None #not a match
+    return params #match with params
+    
 
 class Nanoweb:
 
@@ -47,6 +95,7 @@ class Nanoweb:
     headers = {}
 
     routes = {}
+    routeSegments = {}
     assets_extensions = ('html', 'css', 'js')
 
     callback_request = None
@@ -63,12 +112,17 @@ class Nanoweb:
         """Route decorator"""
         def decorator(func):
             self.routes[route] = func
+            # preload route segments
+            self.route_segments(route)
             return func
         return decorator
 
+    def route_segments(self, route):
+        if not 'route' in self.routeSegments:
+            self.routeSegments[route] = route.split('/')
+        return self.routeSegments[route]
     async def generate_output(self, request, handler):
         """Generate output from handler
-
         `handler` can be :
          * dict representing the template context
          * string, considered as a path to a file
@@ -91,6 +145,7 @@ class Nanoweb:
                     with open(filename, "r") as f:
                         for l in f:
                             await write(request, l.format(**context))
+
                 except OSError as e:
                     if e.args[0] != uerrno.ENOENT:
                         raise
@@ -143,11 +198,13 @@ class Nanoweb:
                     await self.generate_output(request,
                                                self.routes[request.url])
                 else:
+                    url_segments = request.url.split('/')
                     # 2. Search url in routes with wildcard
                     for route, handler in self.routes.items():
-                        if route == request.url \
-                            or (route[-1] == '*' and
-                                request.url.startswith(route[:-1])):
+                        route_segments = self.route_segments(route)
+                        comp = compare_segments(url_segments,route_segments)
+                        if not comp == None:
+                            request.path_params = comp
                             request.route = route
                             await self.generate_output(request, handler)
                             break
@@ -182,3 +239,4 @@ class Nanoweb:
 
     async def run(self):
         return await asyncio.start_server(self.handle, self.address, self.port)
+

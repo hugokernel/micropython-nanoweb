@@ -14,6 +14,9 @@ It is thus able to run on an ESP8266.
 * Extraction of HTML headers
 * User code dense and conci
 * Routing wildcards
+* Named route parameters
+* Direct JSON read/write support
+
 
 ## Use
 
@@ -40,6 +43,18 @@ def ping(request):
     await request.write("HTTP/1.1 200 OK\r\n\r\n")
     await request.write("pong")
 
+
+# Declare route with named 
+@naw.route("/pin/<pin>")
+def pin(request):
+    await request.writeJSON({'requested-pin':request.path_params[pin]})
+    
+# Read JSON from incoming request 
+@naw.route("/update")
+def pin(request):
+    value = await request.readJSON()
+    request.writeJSON({'result':'success','update':value})
+    
 loop = asyncio.get_event_loop()
 loop.create_task(naw.run())
 loop.run_forever()
