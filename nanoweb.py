@@ -66,8 +66,10 @@ def compare_segments(incoming,route):
         return None
     params = {}
     wildcardPos = 1
-    for pos in range(0,len(route)):
-        if route[pos] == incoming[pos]:
+    for pos in range(0,len(incoming)):
+        if pos>=len(route):
+            return None
+        elif route[pos] == incoming[pos]:
             #matches
             matches=1
         elif route[pos] == '*':
@@ -78,7 +80,7 @@ def compare_segments(incoming,route):
                 sys.stderr.write("double wildcard not in last position.\n")
                 # invalid path
                 return None
-            for newpos in range(0,len(incoming)-len(route)):
+            for newpos in range(0,len(incoming)-(len(route)-1)):
                 params['$'+str(wildcardPos)] = incoming[pos+newpos]
                 wildcardPos=wildcardPos+1
             return params
