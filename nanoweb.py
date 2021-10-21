@@ -62,23 +62,24 @@ async def send_file(request, filename, segment=64, binary=False):
 # will return None if not a match, an empty dict if a match without inline
 # params, or a dict with the inline params filled in
 def compare_segments(incoming,route):
-    if (len(incoming) != len(route)):
+    if (len(incoming) < len(route)):
         return None
     params = {}
-    wildcardPos = 0
+    wildcardPos = 1
     for pos in range(0,len(route)):
         if route[pos] == incoming[pos]:
             #matches
             matches=1
         elif route[pos] == '*':
-            params['$'+wildcardPos] = incoming[pos]
+            params['$'+str(wildcardPos)] = incoming[pos]
             wildcardPos=wildcardPos+1
         elif route[pos] == '**':
             if pos != len(route)-1:
+                sys.stderr.write("double wildcard not in last position.\n")
                 # invalid path
                 return None
             for newpos in range(0,len(incoming)-len(route)):
-                params['$'+wildcardPos] = incoming[pos+newpos]
+                params['$'+str(wildcardPos)] = incoming[pos+newpos]
                 wildcardPos=wildcardPos+1
             return params
         elif (route[pos].startswith('<') and route[pos].endswith('>')):
@@ -239,4 +240,5 @@ class Nanoweb:
 
     async def run(self):
         return await asyncio.start_server(self.handle, self.address, self.port)
+
 
