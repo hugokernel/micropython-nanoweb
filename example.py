@@ -177,7 +177,7 @@ async def index(request):
     )
 
 
-naw = Nanoweb(8001)
+naw = Nanoweb(80)
 naw.assets_extensions += ('ico',)
 naw.STATIC_DIR = EXAMPLE_ASSETS_DIR
 
