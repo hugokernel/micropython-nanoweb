@@ -44,3 +44,8 @@ loop = asyncio.get_event_loop()
 loop.create_task(naw.run())
 loop.run_forever()
 ```
+
+## Contribute
+
+* Your code must respects `flake8` and `isort` tools
+* Format your commits with `Commit Conventional` (https://www.conventionalcommits.org/en/v1.0.0/)
