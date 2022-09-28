@@ -15,6 +15,15 @@ class Request:
     write = None
     close = None
 
+    def __init__(self):
+        self.url = ""
+        self.method = ""
+        self.headers = {}
+        self.route = ""
+        self.read = None
+        self.write = None
+        self.close = None
+
 
 async def write(request, data):
     await request.write(
