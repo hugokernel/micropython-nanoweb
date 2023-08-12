@@ -31,20 +31,20 @@ And this is a simpler example:
 import uasyncio
 from nanoweb import Nanoweb
 
+naw = Nanoweb()
+
 async def api_status(request):
     """API status endpoint"""
     await request.write("HTTP/1.1 200 OK\r\n")
     await request.write("Content-Type: application/json\r\n\r\n")
     await request.write('{"status": "running"}')
 
-naw = Nanoweb()
-
-# Declare route from a dict
+# You can declare route from the Nanoweb routes dict...
 naw.routes = {
     '/api/status': api_status,
 }
 
-# Declare route directly with decorator
+# ... or declare route directly from the Nanoweb route decorator
 @naw.route("/ping")
 async def ping(request):
     await request.write("HTTP/1.1 200 OK\r\n\r\n")
