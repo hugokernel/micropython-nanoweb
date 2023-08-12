@@ -17,6 +17,16 @@ It is thus able to run on an ESP8266, ESP32, Raspberry Pico, etc...
 
 ## Use
 
+See the [example.py](example.py) file for an advanced example where you will be able to:
+
+* Make a JSON response
+* Use pages protected with credentials
+* Upload file
+* Use `DELETE` method
+* Read `POST` data
+
+And this is a simpler example:
+
 ```Python
 import uasyncio
 from nanoweb import Nanoweb
