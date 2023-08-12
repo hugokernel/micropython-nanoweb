@@ -3,7 +3,7 @@
 Nanoweb is a full asynchronous web server for micropython created in order to benefit from
 a correct ratio between memory size and features.
 
-It is thus able to run on an ESP8266.
+It is thus able to run on an ESP8266, ESP32, Raspberry Pico, etc...
 
 ## Features
 
