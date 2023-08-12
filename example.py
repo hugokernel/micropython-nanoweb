@@ -167,6 +167,43 @@ async def assets(request):
     )
 
 
+async def post_data(request):
+    """Post data example
+
+    Display the data sent with the request.
+
+    You can reach this entrypoint with curl:
+
+    By JSON:
+        curl -d '{"key1":"value1", "key2":"value2"}' \
+            -H "Content-Type: application/json" -X POST http://URL
+
+    Or by url encoded data:
+        curl -d "param1=value1&param2=value2" -X POST http://URL
+
+    Because of the very simpler way the data is decoded in this example,
+    I recommend you to use the JSON way to send data: it is more safe.
+
+    If you do not want to use the JSON way, it is better to better decoding
+    the data (multiple value for a same key, url encoded string, etc...).
+    See https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST
+    """
+    await request.write("HTTP/1.1 200 Ok\r\n")
+
+    content_length = int(request.headers['Content-Length'])
+    content_type = request.headers['Content-Type']
+
+    data = (await request.read(content_length)).decode()
+
+    if content_type == 'application/json':
+        data = json.loads(data)
+        print(data)
+    elif content_type == 'application/x-www-form-urlencoded':
+        for chunk in data.split('&'):
+            key, value = chunk.split('=', 1)
+            print('%s = %s' % (key, value))
+
+
 @authenticate(credentials=CREDENTIALS)
 async def index(request):
     await request.write(b"HTTP/1.1 200 Ok\r\n\r\n")
@@ -190,6 +227,7 @@ naw.routes = {
     '/api/ls': api_ls,
     '/api/download/*': api_download,
     '/api/delete/*': api_delete,
+    '/post': post_data,
 }
 
 # Declare route directly with decorator
