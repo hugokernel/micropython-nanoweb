@@ -83,15 +83,15 @@ async def api_status(request):
     await request.write("Content-Type: application/json\r\n\r\n")
 
     time_str, uptime_str = get_time()
+
     await request.write(json.dumps({
         "time": time_str,
         "uptime": uptime_str,
-        'python': '{} {} {}'.format(
+        'python': '{} {}'.format(
             sys.implementation.name,
             '.'.join(
                 str(s) for s in sys.implementation.version
             ),
-            sys.implementation.mpy
         ),
         'platform': str(sys.platform),
     }))
