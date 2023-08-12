@@ -190,8 +190,14 @@ async def post_data(request):
     """
     await request.write("HTTP/1.1 200 Ok\r\n")
 
-    content_length = int(request.headers['Content-Length'])
-    content_type = request.headers['Content-Type']
+    if request.method != "POST":
+        raise HttpError(request, 501, "Not Implemented")
+
+    try:
+        content_length = int(request.headers['Content-Length'])
+        content_type = request.headers['Content-Type']
+    except KeyError:
+        raise HttpError(request, 400, "Bad Request")
 
     data = (await request.read(content_length)).decode()
 
