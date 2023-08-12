@@ -1,13 +1,35 @@
 import json
 import os
+import network
 import time
 import sys
 import uasyncio as asyncio
 from nanoweb import HttpError, Nanoweb, send_file
 from ubinascii import a2b_base64 as base64_decode
 
+try:
+    from secrets import WLAN_SSID, WLAN_PASSWORD
+except ImportError:
+    print("Create secrets.py with WLAN_SSID and WLAN_PASSWORD information.")
+    raise
+
 CREDENTIALS = ('foo', 'bar')
 EXAMPLE_ASSETS_DIR = './example-assets/'
+
+def wlan_connection():
+    sta_if = network.WLAN(network.STA_IF)
+
+    if not sta_if.isconnected():
+        print('Connecting to %s network...' % WLAN_SSID)
+        sta_if.active(True)
+        sta_if.connect(WLAN_SSID, WLAN_PASSWORD)
+
+        while not sta_if.isconnected():
+            wait()
+            sleep(0.5)
+
+    print('Connected to %s network' % WLAN_SSID)
+    print('Network config:', sta_if.ifconfig())
 
 
 def get_time():
@@ -241,6 +263,9 @@ naw.routes = {
 async def ping(request):
     await request.write("HTTP/1.1 200 OK\r\n\r\n")
     await request.write("pong")
+
+
+wlan_connection()
 
 loop = asyncio.get_event_loop()
 loop.create_task(naw.run())
