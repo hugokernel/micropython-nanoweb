@@ -46,7 +46,7 @@ naw.routes = {
 
 # Declare route directly with decorator
 @naw.route("/ping")
-def ping(request):
+async def ping(request):
     await request.write("HTTP/1.1 200 OK\r\n\r\n")
     await request.write("pong")
 
