@@ -25,8 +25,7 @@ def wlan_connection():
         sta_if.connect(WLAN_SSID, WLAN_PASSWORD)
 
         while not sta_if.isconnected():
-            wait()
-            sleep(0.5)
+            time.sleep(0.5)
 
     print('Connected to %s network' % WLAN_SSID)
     print('Network config:', sta_if.ifconfig())
