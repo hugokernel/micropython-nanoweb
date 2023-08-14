@@ -205,7 +205,7 @@ async def post_data(request):
     Because of the very simpler way the data is decoded in this example,
     I recommend you to use the JSON way to send data: it is more safe.
 
-    If you do not want to use the JSON way, it is better to better decoding
+    If you do not want to use the JSON way, it is better to decode
     the data (multiple value for a same key, url encoded string, etc...).
     See https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST
     """
