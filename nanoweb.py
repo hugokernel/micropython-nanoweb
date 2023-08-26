@@ -2,6 +2,9 @@ import uasyncio as asyncio
 import uerrno
 
 
+__version__ = '1.0.0'
+
+
 class HttpError(Exception):
     pass
 
