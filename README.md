@@ -15,6 +15,10 @@ It is thus able to run on an ESP8266, ESP32, Raspberry Pico, etc...
 * User code dense and conci
 * Routing wildcards
 
+## Installation
+
+You just have to copy the `nanoweb.py` file on the target (ESP32, Nano, etc...).
+
 ## Use
 
 See the [example.py](example.py) file for an advanced example where you will be able to:
