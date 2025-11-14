@@ -54,7 +54,7 @@ async def ping(request):
     await request.write("HTTP/1.1 200 OK\r\n\r\n")
     await request.write("pong")
 
-loop = asyncio.get_event_loop()
+loop = uasyncio.get_event_loop()
 loop.create_task(naw.run())
 loop.run_forever()
 ```
